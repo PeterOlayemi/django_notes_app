@@ -72,7 +72,6 @@ pip install -r requirements.txt
 ### 4. Django Allauth Setup
 
 - Allauth is pre-configured for email/password and social login.
-- Update `django_notes_app/settings.py` with your email backend and social providers if needed.
 - Run migrations:
 
 ```sh
@@ -123,7 +122,28 @@ python manage.py runserver
   Make sure your server serves media files in production.
 
 - **Social Auth:**  
-  Configure social providers in the Django admin under "Social applications".
+  Configure social providers.
+  For Google:
+  Go to Google Cloud Console → OAuth credentials
+  Under Authorized redirect URIs, add: http://127.0.0.1:8000/accounts/google/login/callback/ (or your production domain later)
+  Copy the Client ID and Client Secret.
+
+  For GitHub:
+  GitHub Developer Settings → OAuth Apps
+  Under Authorized redirect URIs, add: http://127.0.0.1:8000/accounts/github/login/callback/ (or your production domain later)
+  Copy the Client ID and Client Secret.
+
+  Add Site & Social App in Django Admin:
+  Under Sites, ensure you have:
+  Domain name = 127.0.0.1:8000
+  Display name = localhost
+  Under Social Applications, add a new one:
+  Provider = Google
+  Name = Google Login
+  Client ID = (paste from Google Console)
+  Secret Key = (paste from Google Console)
+  Sites = select your site
+  Do the same for GitHub
 
 ---
 
