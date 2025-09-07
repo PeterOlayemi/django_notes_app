@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% load widget_tweaks %}
+
+{% block title %}Account Inactive - MindPad{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
+  <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">⚠️ Account Inactive</h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">
+    Your account is currently inactive. Please contact support or verify your email to activate your account.
+  </p>
+
+  <div class="space-y-4">
+    <a href="{% url 'account_login' %}" 
+       class="w-full inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+       Go to Login
+    </a>
+    <a href="{% url 'account_reset_password' %}" 
+       class="w-full inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+       Reset Password
+    </a>
+  </div>
+
+  <div class="mt-6">
+    <p class="text-gray-500 dark:text-gray-400 text-sm">Or login with:</p>
+    <div class="flex space-x-2 mt-2 justify-center">
+      <a href="{% provider_login_url 'google' %}" class="px-3 py-2 bg-red-500 text-white rounded-lg">Google</a>
+      <a href="{% provider_login_url 'github' %}" class="px-3 py-2 bg-gray-800 text-white rounded-lg">GitHub</a>
+    </div>
+  </div>
+
+  <p class="mt-4 text-sm text-gray-600 dark:text-gray-300">
+    Don't have an account? 
+    <a href="{% url 'account_signup' %}" class="text-indigo-600 hover:underline">Register</a>
+  </p>
+</div>
+{% endblock %}

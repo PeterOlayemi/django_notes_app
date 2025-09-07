@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% load static %}
+{% load extras %}
+{% load widget_tweaks %}
+
+{% block title %}Notes Dashboard - MindPad{% endblock %}
+
+{% block content %}
+
+<section class="text-center mb-10">
+  <h2 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100">
+    Welcome back, {{ user.username }} 👋
+  </h2>
+  <p class="text-gray-600 dark:text-gray-400 mt-2">
+    Organize your thoughts, ideas, and inspirations all in one place.
+  </p>
+</section>
+
+{% if pinned_notes %}
+<section>
+  <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-6">Pinned Notes</h3>
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for note in pinned_notes %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 hover:shadow-xl transition flex flex-col">
+        <h4 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+          <a href="{% url 'note_detail' note.pk %}">{{ note.title }}</a>
+          {% if note.is_locked %} 🔒{% endif %}
+        </h4>
+
+        <p class="text-gray-700 dark:text-gray-300 flex-1">
+          {{ note.body|truncatechars:100 }}
+        </p>
+
+        {% if note.tags.all %}
+          <div class="mt-3 flex flex-wrap gap-2">
+            {% for tag in note.tags.all %}
+              <span class="bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full">
+                #{{ tag }}
+              </span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="mt-4 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+          <span>Last edited: {{ note.updated_at|short_timesince }}</span>
+          <div class="flex gap-2">
+            <a href="{% url 'unpin_note' note.id %}" 
+              onclick="return confirm('Unpin this note?')" 
+              class="hover:text-yellow-500">📌</a>
+            <a href="{% url 'note_trash' note.id %}" 
+              onclick="return confirm('Are you sure you want to move this note to Trash?')" 
+              class="hover:text-red-500">🗑️</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="mt-10">
+  <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-6">All Notes</h3>
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% for note in other_notes %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 hover:shadow-xl transition flex flex-col">
+        <h4 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+          <a href="{% url 'note_detail' note.id %}">{{ note.title }}</a>
+          {% if note.is_locked %} 🔒{% endif %}
+        </h4>
+
+        <p class="text-gray-700 dark:text-gray-300 flex-1">
+          {{ note.body|truncatechars:100 }}
+        </p>
+
+        {% if note.tags.all %}
+          <div class="mt-3 flex flex-wrap gap-2">
+            {% for tag in note.tags.all %}
+              <span class="bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full">
+                #{{ tag }}
+              </span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="mt-4 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+          <span>Last edited: {{ note.updated_at|short_timesince }}</span>
+          <div class="flex gap-2">
+            <a href="{% url 'pin_note' note.id %}" 
+              onclick="return confirm('Pin this note?')" 
+              class="hover:text-yellow-500">📌</a>
+            <a href="{% url 'note_trash' note.id %}" 
+              onclick="return confirm('Are you sure you want to move this note to Trash?')" 
+              class="hover:text-red-500">🗑️</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-gray-500 dark:text-gray-400">No notes yet. Create one!</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if other_notes.paginator.num_pages > 1 %}
+<div class="flex justify-center mt-6">
+  <ul class="flex space-x-2">
+    {% if other_notes.has_previous %}
+      <li>
+        <a href="?page={{ other_notes.previous_page_number }}" 
+           class="px-3 py-1 border rounded text-gray-800 dark:text-white">←</a>
+      </li>
+    {% endif %}
+
+    {% for num in other_notes.paginator.page_range %}
+      {% if num == other_notes.number %}
+        <li>
+          <span class="px-3 py-1 bg-indigo-600 text-white rounded">{{ num }}</span>
+        </li>
+      {% elif num > other_notes.number|add:"-3" and num < other_notes.number|add:"3" %}
+        <li>
+          <a href="?page={{ num }}" 
+             class="px-3 py-1 border rounded text-gray-800 dark:text-white">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if other_notes.has_next %}
+      <li>
+        <a href="?page={{ other_notes.next_page_number }}" 
+           class="px-3 py-1 border rounded text-gray-800 dark:text-white">→</a>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<button id="newNoteBtn" 
+  class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-3xl shadow-lg flex items-center justify-center transition transform hover:scale-110">
+  +
+</button>
+
+<div id="noteModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 relative">
+    <button type="button" onclick="toggleModal()" 
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+      ✖
+    </button>
+
+    <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">📝 Create New Note</h2>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'note_create' %}" class="space-y-5">
+      {% csrf_token %}
+
+      <div>
+        <label for="id_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+        {{ form.title|add_class:"w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
+      </div>
+
+      <div>
+        <label for="id_format" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Format</label>
+        {{ form.format|add_class:"w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
+      </div>
+
+      <div>
+        <label for="id_body" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content</label>
+        {{ form.body|add_class:"w-full h-40 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
+      </div>
+
+      <div>
+        <label for="id_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Attachment (optional)</label>
+        {{ form.file|add_class:"w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-gray-100" }}
+      </div>
+
+      <div>
+        <label for="id_tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags</label>
+        {{ form.tags|add_class:"w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
+        <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        {{ form.is_locked }}
+        <label for="id_is_locked" class="text-sm font-medium text-gray-700 dark:text-gray-300">Lock note?</label>
+      </div>
+
+      <div id="lockPasswordField" class="hidden">
+        <label for="id_lock_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lock Password</label>
+        {{ form.lock_password|add_class:"w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" }}
+      </div>
+
+      <div class="flex justify-end mt-6">
+        <button type="button" onclick="toggleModal()" 
+          class="mr-2 px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
+          Cancel
+        </button>
+        <button type="submit" 
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("noteModal");
+
+  function toggleModal() {
+    modal.classList.toggle("hidden");
+    modal.classList.toggle("flex");
+  }
+
+  document.querySelector("#newNoteBtn").addEventListener("click", toggleModal);
+</script>
+<script src="{% static 'js/home.js' %}"></script>
+
+{% endblock %}

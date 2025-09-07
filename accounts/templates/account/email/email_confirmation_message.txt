@@ -1,0 +1,16 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with site_name=current_site.name %}Hi {{ user.username }},
+
+You're almost there! Please confirm your email address for {{ site_name }}.{% endblocktrans %}
+
+Confirm your email by clicking the link below:
+{{ activate_url }}
+
+If the button above does not work, copy and paste the link into your browser:
+{{ activate_url }}
+
+---
+
+© 2025 MindPad. Developer: Peter Olayemi (https://github.com/PeterOlayemi)
+{% endautoescape %}

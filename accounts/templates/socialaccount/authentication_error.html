@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Authentication Error - MindPad{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow text-center">
+  <div class="text-5xl mb-4">⚠️</div>
+
+  <h2 class="text-2xl font-bold mb-3 text-gray-700 dark:text-gray-200">
+    {% trans "Authentication Error" %}
+  </h2>
+
+  <p class="text-gray-600 dark:text-gray-300 mb-6">
+    {% trans "Something went wrong while trying to log in with your social account. Please try again or use another method." %}
+  </p>
+
+  <div class="flex flex-col space-y-3">
+    <a href="{% url 'account_login' %}" 
+       class="w-full px-4 py-2 rounded-lg bg-indigo-600 text-white shadow hover:bg-indigo-700 transition">
+      {% trans "Back to Login" %}
+    </a>
+    <a href="{% url 'account_signup' %}" 
+       class="w-full px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+      {% trans "Create a New Account" %}
+    </a>
+  </div>
+</div>
+{% endblock %}

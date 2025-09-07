@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Analytics - MindPad{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Your Analytics</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Notes Created Per Month</h2>
+    <canvas id="notesPerMonthChart"></canvas>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Notes Per Tag</h2>
+    <canvas id="notesPerTagChart"></canvas>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Notes Created Per Day (Last 30 Days)</h2>
+    <canvas id="notesPerDayChart"></canvas>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Top 10 Tags</h2>
+    <ul class="text-gray-700 dark:text-gray-300">
+      {% for tag in top_tags %}
+        <li>{{ tag.tags__name }}: {{ tag.count }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Attachments</h2>
+    <p class="text-gray-700 dark:text-gray-300">With attachments: {{ with_attachments }}</p>
+    <p class="text-gray-700 dark:text-gray-300">Without attachments: {{ without_attachments }}</p>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Note Status</h2>
+    <p class="text-gray-700 dark:text-gray-300">Active: {{ active }}</p>
+    <p class="text-gray-700 dark:text-gray-300">Archived: {{ archived }}</p>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Average Note Length</h2>
+    <p class="text-gray-700 dark:text-gray-300">{{ avg_length.avg|default:"0" }}</p>
+  </div>
+  <div>
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Average Tags per Note</h2>
+    <p class="text-gray-700 dark:text-gray-300">{{ tag_diversity.avg|default:"0" }}</p>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function getChartColors() {
+    const isDark = document.documentElement.classList.contains("dark");
+    return {
+      primary: isDark ? "#818cf8" : "#6366f1",
+      accent: isDark ? "#fbbf24" : "#f59e42",
+      success: isDark ? "#34d399" : "#10b981",
+      text: isDark ? "#ffffff" : "#1f2937",
+      grid: isDark ? "#374151" : "#e5e7eb",
+    };
+  }
+
+  const colors = getChartColors();
+
+  const notesPerMonth = {{ notes_per_month|safe }};
+  const notesPerMonthLabels = notesPerMonth.map(e => e.month ? new Date(e.month).toLocaleString('default', { month: 'short', year: 'numeric' }) : '');
+  const notesPerMonthData = notesPerMonth.map(e => e.count);
+
+  new Chart(document.getElementById('notesPerMonthChart'), {
+    type: 'bar',
+    data: {
+      labels: notesPerMonthLabels,
+      datasets: [{
+        label: 'Notes',
+        data: notesPerMonthData,
+        backgroundColor: colors.primary
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          labels: {
+            color: colors.text,
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: colors.text,
+            font: {
+              size: 12,
+              weight: 'bold'
+            }
+          },
+          grid: { color: colors.grid }
+        },
+        y: {
+          ticks: {
+            color: colors.text,
+            font: {
+              size: 12,
+              weight: 'bold'
+            }
+          },
+          grid: { color: colors.grid }
+        }
+      }
+    }
+
+  });
+
+  const notesPerTag = {{ notes_per_tag|safe }};
+  const notesPerTagLabels = notesPerTag.map(e => e.tags__name || 'No Tag');
+  const notesPerTagData = notesPerTag.map(e => e.count);
+  const tagColors = notesPerTagLabels.map((_, i) => {
+    const palette = ["#fbbf24", "#818cf8", "#34d399", "#ef4444", "#a78bfa", "#f472b6", "#22d3ee", "#facc15", "#4ade80", "#c084fc"];
+    return palette[i % palette.length];
+  });
+
+  new Chart(document.getElementById('notesPerTagChart'), {
+    type: 'doughnut',
+    data: {
+      labels: notesPerTagLabels,
+      datasets: [{
+        label: 'Notes',
+        data: notesPerTagData,
+        backgroundColor: tagColors
+      }]
+    },
+    options: {
+      plugins: {legend: {labels: {color: colors.text}}}
+    }
+  });
+
+  const notesPerDay = {{ notes_per_day|safe }};
+  const notesPerDayLabels = notesPerDay.map(e => e.day ? new Date(e.day).toLocaleDateString() : '');
+  const notesPerDayData = notesPerDay.map(e => e.count);
+
+  new Chart(document.getElementById('notesPerDayChart'), {
+    type: 'line',
+    data: {
+      labels: notesPerDayLabels,
+      datasets: [{
+        label: 'Notes',
+        data: notesPerDayData,
+        borderColor: colors.success,
+        backgroundColor: colors.success,
+        fill: false
+      }]
+    },
+    options: {
+      scales: {
+        x: { ticks: { color: colors.text }, grid: { color: colors.grid } },
+        y: { ticks: { color: colors.text }, grid: { color: colors.grid } }
+      },
+      plugins: { legend: { labels: { color: colors.text } } }
+    }
+  });
+</script>
+
+{% endblock %}

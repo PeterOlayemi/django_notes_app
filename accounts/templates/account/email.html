@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load widget_tweaks %}
+
+{% block title %}Manage Emails - MindPad{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">📧 Manage Your Emails</h2>
+  <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+    Below you can see your current email addresses, set a primary one, and verify them.
+  </p>
+
+  {% if user.emailaddress_set.all %}
+    <form action="{% url 'account_email' %}" method="post">
+      {% csrf_token %}
+      <table class="w-full text-sm mb-6 border-collapse">
+        <thead>
+          <tr class="text-left border-b dark:border-gray-700">
+            <th class="py-2">Email Address</th>
+            <th class="py-2">Status</th>
+            <th class="py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for emailaddress in user.emailaddress_set.all %}
+          <tr class="border-b dark:border-gray-700">
+            <td class="py-2">
+              <label for="email_radio_{{ forloop.counter }}" class="flex items-center space-x-2">
+                <input id="email_radio_{{ forloop.counter }}" type="radio" name="email" value="{{ emailaddress.email }}" {% if emailaddress.primary %}checked{% endif %} class="text-indigo-600 focus:ring-indigo-500">
+                <span>{{ emailaddress.email }}</span>
+              </label>
+            </td>
+            <td class="py-2">
+              {% if emailaddress.verified %}
+                <span class="text-green-600 dark:text-green-400">Verified</span>
+              {% else %}
+                <span class="text-yellow-600 dark:text-yellow-400">Unverified</span>
+              {% endif %}
+              {% if emailaddress.primary %}
+                <span class="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Primary</span>
+              {% endif %}
+            </td>
+            <td class="py-2 space-x-2">
+              {% if not emailaddress.verified %}
+                <button name="action_send" value="{{ emailaddress.email }}" class="text-sm px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Resend Verification</button>
+              {% endif %}
+              {% if not emailaddress.primary %}
+                <button name="action_remove" value="{{ emailaddress.email }}" class="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Remove</button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="flex space-x-2">
+        <button type="submit" name="action_primary" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Set Primary</button>
+      </div>
+    </form>
+  {% else %}
+    <p class="text-gray-600 dark:text-gray-400 mb-6">You don’t have any email addresses connected yet.</p>
+  {% endif %}
+
+  <h3 class="text-lg font-semibold mt-8 mb-3 text-gray-700 dark:text-gray-200">➕ Add New Email</h3>
+  <form method="post" action="{% url 'account_email' %}" class="space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.email.label_tag }}
+      {{ form.email|add_class:"w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-gray-100" }}
+      {% if form.email.errors %}
+        <p class="text-red-500 text-sm">{{ form.email.errors|striptags }}</p>
+      {% endif %}
+    </div>
+    <button type="submit" name="action_add" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Add Email</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Confirm Email - MindPad{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">📧 Confirm Your Email</h2>
+
+  {% if confirmation %}
+    <p class="text-gray-600 dark:text-gray-300 mb-4">
+      Please confirm that <strong class="text-indigo-600">{{ confirmation.email_address.email }}</strong> is your email address.
+    </p>
+
+    <form method="post" action="{% url 'account_confirm_email' confirmation.key %}" class="space-y-4">
+      {% csrf_token %}
+      <button type="submit" 
+        class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        Confirm Email
+      </button>
+    </form>
+  {% else %}
+    <p class="text-gray-600 dark:text-gray-300 mb-4">
+      {% trans "This email confirmation link is invalid or has already been used." %}
+    </p>
+    <div class="flex gap-2">
+      <a href="{% url 'account_login' %}" 
+         class="flex-1 text-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+         Login
+      </a>
+      <a href="{% url 'account_signup' %}" 
+         class="flex-1 text-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+         Sign Up
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

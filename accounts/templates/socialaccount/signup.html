@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Social Signup - MindPad{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+  <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-200">🌍 Sign up with Social Account</h2>
+
+  {% if form.errors %}
+    <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 border border-red-300">
+      Please fix the errors below.
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'socialaccount_signup' %}" class="space-y-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div>
+        {{ field.label_tag }}
+        {{ field|add_class:"w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-gray-100" }}
+        {% if field.errors %}
+          <p class="text-red-500 text-sm">{{ field.errors|striptags }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" 
+            class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+      Complete Signup
+    </button>
+  </form>
+
+  <div class="my-6 flex items-center">
+    <div class="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
+    <span class="px-2 text-sm text-gray-500 dark:text-gray-400">or</span>
+    <div class="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
+  </div>
+
+  <p class="mt-2 text-sm text-gray-600 dark:text-gray-300 text-center">
+    Already have an account? 
+    <a href="{% url 'account_login' %}" class="text-indigo-600 hover:underline">Login</a>
+  </p>
+  <p class="mt-1 text-sm text-gray-600 dark:text-gray-300 text-center">
+    Want to sign up with another method? 
+    <a href="{% url 'account_signup' %}" class="text-indigo-600 hover:underline">Register with Email</a>
+  </p>
+</div>
+{% endblock %}
