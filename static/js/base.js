@@ -15,52 +15,58 @@ function themeApp() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("searchInput");
-  const suggestionsBox = document.getElementById("searchSuggestions");
+  const searchBoxes = [
+    { input: document.getElementById("searchInput"), box: document.getElementById("searchSuggestions") },
+    { input: document.getElementById("mobileSearchInput"), box: document.getElementById("mobileSearchSuggestions") }
+  ];
 
   let debounceTimer;
 
-  searchInput.addEventListener("input", () => {
-    clearTimeout(debounceTimer);
-    const query = searchInput.value.trim();
+  searchBoxes.forEach(({ input, box }) => {
+    if (!input || !box) return;
 
-    if (!query) {
-      suggestionsBox.style.display = "none";
-      return;
-    }
+    input.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      const query = input.value.trim();
 
-    debounceTimer = setTimeout(() => {
-      fetch(`/search-suggestions/?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          suggestionsBox.innerHTML = "";
+      if (!query) {
+        box.style.display = "none";
+        return;
+      }
 
-          if (!data.notes || data.notes.length === 0) {
-            suggestionsBox.innerHTML =
-              `<div class="px-4 py-2 text-gray-500 dark:text-gray-300 text-sm">No results found</div>`;
-          } else {
-            suggestionsBox.innerHTML += `<div class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 font-semibold text-indigo-700 dark:text-indigo-200 text-sm rounded-t-lg">Related Notes</div>`;
-            
-            data.notes.forEach(note => {
-              suggestionsBox.innerHTML += `
-                <a href="${note.url}" 
-                   class="block px-4 py-2 hover:bg-indigo-100 dark:hover:bg-indigo-700 dark:text-gray-100 text-gray-800 text-sm">
-                  ${note.title}
-                </a>`;
-            });
-          }
+      debounceTimer = setTimeout(() => {
+        fetch(`/search-suggestions/?q=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            box.innerHTML = "";
 
-          suggestionsBox.style.display = "block";
-        })
-        .catch(err => {
-          console.error("Search suggestions error:", err);
-        });
-    }, 300);
-  });
+            if (!data.notes || data.notes.length === 0) {
+              box.innerHTML =
+                `<div class="px-4 py-2 text-gray-500 dark:text-gray-300 text-sm">No results found</div>`;
+            } else {
+              box.innerHTML += `<div class="px-4 py-2 bg-indigo-100 dark:bg-indigo-900 font-semibold text-indigo-700 dark:text-indigo-200 text-sm rounded-t-lg">Related Notes</div>`;
 
-  document.addEventListener("click", (e) => {
-    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
-      suggestionsBox.style.display = "none";
-    }
+              data.notes.forEach(note => {
+                box.innerHTML += `
+                  <a href="${note.url}"
+                     class="block px-4 py-2 hover:bg-indigo-100 dark:hover:bg-indigo-700 dark:text-gray-100 text-gray-800 text-sm">
+                    ${note.title}
+                  </a>`;
+              });
+            }
+
+            box.style.display = "block";
+          })
+          .catch(err => {
+            console.error("Search suggestions error:", err);
+          });
+      }, 300);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!input.contains(e.target) && !box.contains(e.target)) {
+        box.style.display = "none";
+      }
+    });
   });
 });

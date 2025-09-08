@@ -8,7 +8,7 @@
 {% block content %}
 
 <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-  
+
   <div class="flex justify-between items-start mb-6">
     <div>
       <h1 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-2">
@@ -19,48 +19,96 @@
       </p>
     </div>
 
-    <div class="flex space-x-3">
-      <a href="javascript:void(0);" 
-        id="shareBtn"
+    <div class="hidden sm:flex space-x-3">
+      <a href="javascript:void(0);"
+        id="shareBtnDesktop"
         class="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm">
         🔗 Share
       </a>
       <div class="relative inline-block text-left">
-        <button onclick="toggleExportMenu()" 
+        <button onclick="toggleExportMenu()"
                 class="px-3 py-2 rounded bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 text-sm">
           📤 Export
         </button>
 
         <div id="exportMenu" class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
-          <a href="{% url 'note_export' note.id %}?format=txt" 
+          <a href="{% url 'note_export' note.id %}?format=txt"
             class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">TXT</a>
-          <a href="{% url 'note_export' note.id %}?format=md" 
+          <a href="{% url 'note_export' note.id %}?format=md"
             class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Markdown</a>
-          <a href="{% url 'note_export' note.id %}?format=html" 
+          <a href="{% url 'note_export' note.id %}?format=html"
             class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">HTML</a>
-          <a href="{% url 'note_export' note.id %}?format=pdf" 
+          <a href="{% url 'note_export' note.id %}?format=pdf"
             class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">PDF</a>
         </div>
       </div>
-      <a href="#" onclick="toggleEditModal()" 
+      <a href="#" onclick="toggleEditModal()"
         class="px-3 py-2 rounded bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-yellow-700 dark:text-yellow-300 text-sm">
         ✏️ Edit
       {% if note.is_archived %}
-        <a href="{% url 'note_unarchive' note.id %}" 
-          onclick="return confirm('Remove this note from archive?')" 
+        <a href="{% url 'note_unarchive' note.id %}"
+          onclick="return confirm('Remove this note from archive?')"
           class="px-3 py-2 rounded bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 text-sm">
           📂 Unarchive
         </a>
       {% else %}
-        <a href="{% url 'note_archive' note.id %}" 
-          onclick="return confirm('Are you sure you want to move this note to Archive?')" 
+        <a href="{% url 'note_archive' note.id %}"
+          onclick="return confirm('Are you sure you want to move this note to Archive?')"
           class="px-3 py-2 rounded bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800 text-yellow-700 dark:text-yellow-300 text-sm">
           🗄️ Archive
         </a>
       {% endif %}
-      <a href="{% url 'note_trash' note.id %}" 
-        onclick="return confirm('Are you sure you want to move this note to Trash?')" 
+      <a href="{% url 'note_trash' note.id %}"
+        onclick="return confirm('Are you sure you want to move this note to Trash?')"
         class="px-3 py-2 rounded bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-300 text-sm">🗑️ Trash</a>
+    </div>
+    <div class="sm:hidden relative">
+      <button onclick="toggleActionsMenu()"
+        class="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">
+        ⋮ Actions
+      </button>
+
+      <div id="actionsMenu"
+           class="hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-700 border border-gray-200
+                  dark:border-gray-600 rounded-md shadow-lg z-50">
+        <a href="javascript:void(0);" id="shareBtnMobile"
+          class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">🔗 Share</a>
+
+        <div class="relative">
+          <button onclick="toggleExportMenuMobile()"
+            class="w-full text-left block px-4 py-2 text-sm text-blue-700 dark:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-600">
+            📤 Export
+          </button>
+            <div id="exportMenuMobile"
+                 class="hidden flex-col bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 rounded-md shadow-lg">
+                <a href="{% url 'note_export' note.id %}?format=txt"
+                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">TXT</a>
+                <a href="{% url 'note_export' note.id %}?format=md"
+                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">Markdown</a>
+                <a href="{% url 'note_export' note.id %}?format=html"
+                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">HTML</a>
+                <a href="{% url 'note_export' note.id %}?format=pdf"
+                   class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">PDF</a>
+            </div>
+        </div>
+
+        <a href="#" onclick="toggleEditModal()"
+          class="block px-4 py-2 text-sm text-yellow-700 dark:text-yellow-300 hover:bg-gray-100 dark:hover:bg-gray-600">✏️ Edit</a>
+
+        {% if note.is_archived %}
+          <a href="{% url 'note_unarchive' note.id %}"
+            onclick="return confirm('Remove this note from archive?')"
+            class="block px-4 py-2 text-sm text-blue-700 dark:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-600">📂 Unarchive</a>
+        {% else %}
+          <a href="{% url 'note_archive' note.id %}"
+            onclick="return confirm('Are you sure you want to move this note to Archive?')"
+            class="block px-4 py-2 text-sm text-yellow-700 dark:text-yellow-300 hover:bg-gray-100 dark:hover:bg-gray-600">🗄️ Archive</a>
+        {% endif %}
+
+        <a href="{% url 'note_trash' note.id %}"
+          onclick="return confirm('Are you sure you want to move this note to Trash?')"
+          class="block px-4 py-2 text-sm text-red-700 dark:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-600">🗑️ Trash</a>
+      </div>
     </div>
   </div>
 
@@ -97,7 +145,7 @@
 
 <div id="editNoteModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto p-6 relative">
-    <button type="button" onclick="toggleEditModal()" 
+    <button type="button" onclick="toggleEditModal()"
       class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
       ✖
     </button>
@@ -131,7 +179,7 @@
         <label for="id_tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tags</label>
         <input type="text" name="tags" id="id_tags"
               value="{{ form.tags.value|default_if_none:'' }}"
-              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="comma,separated" disabled>
         <p class="text-xs text-gray-500 mt-1">Separate multiple tags with commas.</p>
       </div>
@@ -147,11 +195,11 @@
       </div>
 
       <div class="flex justify-end mt-6">
-        <button type="button" onclick="toggleEditModal()" 
+        <button type="button" onclick="toggleEditModal()"
           class="mr-2 px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">
           Cancel
         </button>
-        <button type="submit" name="submit_type" value="edit" 
+        <button type="submit" name="submit_type" value="edit"
           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md">
           Update
         </button>
@@ -159,6 +207,58 @@
     </form>
   </div>
 </div>
+
+<script>
+  function toggleActionsMenu() {
+    document.getElementById("actionsMenu").classList.toggle("hidden");
+  }
+
+  function toggleExportMenuMobile() {
+    document.getElementById("exportMenuMobile").classList.toggle("hidden");
+  }
+
+  document.addEventListener("click", function(e) {
+    const actionsMenu = document.getElementById("actionsMenu");
+    const exportMenuMobile = document.getElementById("exportMenuMobile");
+
+    if (actionsMenu && !actionsMenu.contains(e.target) && !e.target.closest("button")) {
+      actionsMenu.classList.add("hidden");
+    }
+    if (exportMenuMobile && !exportMenuMobile.contains(e.target) && !e.target.closest("button")) {
+      exportMenuMobile.classList.add("hidden");
+    }
+  });
+
+  function setupShareButton(btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener("click", async function() {
+      const shareData = {
+        title: "{{ note.title|escapejs }}",
+        text: "Check out this note on MindPad",
+        url: "{{ request.build_absolute_uri|escapejs }}",
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          console.error("Error sharing:", err);
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(shareData.url);
+          alert("🔗 Link copied to clipboard!");
+        } catch {
+          prompt("Copy this link:", shareData.url);
+        }
+      }
+    });
+  }
+
+  setupShareButton("shareBtnDesktop");
+  setupShareButton("shareBtnMobile");
+</script>
 
 <script>
   const editModal = document.getElementById("editNoteModal");
@@ -195,32 +295,6 @@
     const button = e.target.closest("button");
     if (!menu.contains(e.target) && !button) {
       menu.classList.add("hidden");
-    }
-  });
-</script>
-<script>
-  document.getElementById("shareBtn").addEventListener("click", async function() {
-    const shareData = {
-      title: "{{ note.title|escapejs }}",
-      text: "Check out this note on MindPad",
-      url: "{{ request.build_absolute_uri|escapejs }}",
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        console.log("Note shared successfully");
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareData.url);
-        alert("🔗 Link copied to clipboard!");
-      } catch (err) {
-        console.error("Clipboard failed:", err);
-        prompt("Copy this link:", shareData.url);
-      }
     }
   });
 </script>
