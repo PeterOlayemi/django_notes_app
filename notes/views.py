@@ -362,5 +362,7 @@ def analytics_view(request):
         "archived": archived,
         "active": active,
         "tag_diversity": tag_diversity,
+        "has_notes": Note.objects.filter(user=user).exists(),
+        "has_tags": notes_per_tag.exists(),
     }
     return render(request, "notes/analytics.html", context)
